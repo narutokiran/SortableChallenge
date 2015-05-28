@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+
 public class Trie
 {
 
@@ -9,10 +10,8 @@ public class Trie
     private boolean isWord;
     private String productName;
     private ArrayList<String> result; 
-    /**
-     *  create a new Trie (characters a-z)
-     */
     
+    // Trie that stores the values between A-Z and 0-9
     public Trie()
     {
     	result=new ArrayList<String>();
@@ -20,11 +19,7 @@ public class Trie
 		isWord = false;
     }
 
-    /**
-    * Check a given character lies between 0-9 or a-z
-    * @param k The char to be checked
-    * return 1 if lies in 0-9 else 0
-    */
+    //check if the given char is number or alphabet
     int checkNumOrChar(char k)
     {
     	if(k >= '0' && k <= '9')
@@ -32,12 +27,8 @@ public class Trie
     	else
     		return 0;
     }
-    /**
-     * Add a string to the trie
-     *
-     * @param s The string added to Trie
-     */
-    
+   
+    //add model name of the manufacturer into the trie
     public void addString(String s,String productName)
     {
 	Trie t = this;
@@ -63,13 +54,8 @@ public class Trie
 	t.productName=productName;
     }
 
-    /**
-     * determine if a word is in the trie (here or below)
-     *
-     * @param s The string searched for
-     * @return true iff s is in trie (rooted here)
-     */
     
+    //check if the trie contains the model name of the manufacturer
     public boolean isWord(String s)
     {
 	Trie t = this;
@@ -91,9 +77,9 @@ public class Trie
 	return t.isWord;
     }
 
+    //Append the listing to the model's result if it matches
     public boolean isMatch(String s, int start, String line)
     {
-    	//System.out.println("hi");
     	Trie t = this;
 		int k;
 		int limit = s.length();
@@ -107,23 +93,23 @@ public class Trie
 	    		index = s.charAt(k)-'a';
 	    	else
 	    		index=26+s.charAt(k)-'0';
+	    	if(index>35)
+	    		continue;
 	    if (t.links[index] == null) return false;
 	    t = t.links[index];
-	    if(k+1<limit && s.charAt(k+1)==' ' && t.isWord)
+	    if(k+1<limit && (s.charAt(k+1)==' ' || index>35) && t.isWord)
 	    {
-	    	System.out.println(t.productName);
 	    	t.result.add(line);
 	    	return t.isWord;
 	    }
 	}
 	if(t.isWord)
 	{
-		System.out.println(t.productName);
 		t.result.add(line);
 	}
 	return t.isWord;
     }
-
+    //print all models' results of the manufacturer
     void doPrint(Trie t, BufferedWriter bw)throws Exception
     {
 	if (t != null)

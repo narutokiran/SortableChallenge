@@ -5,15 +5,25 @@ import java.util.*;
 
 public class SortableChallenge
 {
+  //Removes special characters of the String s.
   public static String formatString(String s)
   {
     s=s.trim();
-    s= s.replaceAll("[-()!/.]","");
-    s=s.replace("_"," ");
+    s= s.replaceAll("[-'!/*=&+.#?$]","");
+    s=s.replace("(","");
+    s=s.replace(")","");
+    s=s.replaceAll("[_,:;]"," ");
+    s=s.replace("\\","");
+    s=s.replaceAll("\"","");
+    s=s.replace("[","");
+    s=s.replace("]","");
+    s=s.replaceAll("·","");
+    s=s.replaceAll("( )+"," ");
     s=s.toLowerCase();
     return s;
   }
 
+  //print all models in the Trie
   public static void printTrie(Trie t, BufferedWriter bw)throws Exception
   {
     if(t!=null)
@@ -21,27 +31,29 @@ public class SortableChallenge
   }
    public static void main(String[] args) throws Exception
    {
-   		 BufferedReader br=new BufferedReader(new FileReader("products.txt"));
+      //Check if given arguments are correct
+      if(args.length<3){
+        System.out.println("Check readme file to correct the arguments");
+        System.exit(1);}
+      //Read product.txt file
+   		 BufferedReader br=new BufferedReader(new FileReader(args[0]));
         String product;
         JSONParser parser=new JSONParser();
+        //Hashmap with manufacturer name as Key and Trie which stores models of the manufacturer as value
         HashMap<String,Trie> manufacturerLookUp=new HashMap<String,Trie>();
-        int count=0;
         while((product=br.readLine())!=null)
         {
         	try 
         	{
-        		//System.out.println(product);
      			  JSONObject obj =(JSONObject) parser.parse(product);
             String manufacturer=(String)obj.get("manufacturer");
             manufacturer=manufacturer.toLowerCase();
             String modelName=SortableChallenge.formatString((String)obj.get("model"));
             String productName=(String)obj.get("product_name");
-            //System.out.println(++count);
             if(manufacturerLookUp.containsKey(manufacturer))
             {
              	if(!manufacturerLookUp.get(manufacturer).isWord(modelName))
              		{
-             			//System.out.println(manufacturer+" "+modelName);
              			Trie temp = manufacturerLookUp.get(manufacturer);
              			temp.addString(modelName,productName);
              			manufacturerLookUp.put(manufacturer,temp);
@@ -61,21 +73,23 @@ public class SortableChallenge
         	}
     	}
     	br.close();
-      br=new BufferedReader(new FileReader("listings1.txt"));
+      //read the listing.txt file
+      br=new BufferedReader(new FileReader(args[1]));
       String listing;
+      int count=0;
       while((listing=br.readLine())!=null)
       {
-          //System.out.println(listing);
+        try
+        {
           JSONObject obj =(JSONObject) parser.parse(listing);
           String manufacturer=(String)obj.get("manufacturer");
-          manufacturer=manufacturer.toLowerCase();
-          //System.out.println(manufacturer);   
+          manufacturer=manufacturer.toLowerCase();   
           String formatedListing=formatString((String)obj.get("title"));
-          //System.out.println(formatedListing);
           String words[]=formatedListing.split(" ");
           int wordPosition=0;
           for(int i=0;i<words.length;i++)
           {
+            
               Trie temp=manufacturerLookUp.get(manufacturer);
               if(temp==null)
               {
@@ -89,10 +103,17 @@ public class SortableChallenge
                 {
                   break;
                 }
+            }
           }
-      }
+          catch (Exception e)
+          {
+              //JSON parsing error from listing.txt file
+            e.printStackTrace();
+          }
+        }
       br.close();  
-      BufferedWriter bw=new BufferedWriter(new FileWriter("out.txt"));
+      //copy the result to out.txt by iterating the HashMap
+      BufferedWriter bw=new BufferedWriter(new FileWriter(args[2]));
       for(String key:manufacturerLookUp.keySet())
       {
         SortableChallenge.printTrie(manufacturerLookUp.get(key),bw);
