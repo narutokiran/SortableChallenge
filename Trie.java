@@ -116,7 +116,7 @@ public class Trie
 	{
 	    if (t.isWord)
 	    {
-	    	bw.write("{\"product_name\":"+t.productName+",\"listings\":[");
+	    	bw.write("{\"product_name\":\""+t.productName+"\",\"listings\":[");
 			if(t.result.size()==0)
 				bw.write("]}\n");
 			else
